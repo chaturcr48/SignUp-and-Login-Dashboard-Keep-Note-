@@ -7,16 +7,25 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
   $username=$_POST['username'];
   $password=$_POST['password'];
   $c_password=$_POST['c_password'];
-  $exists=false;
-  if(($password==$c_password) && $exists==false){
-    $sql="INSERT INTO `user` (`username`, `password`, `dt`) VALUES ('$username', '$password', current_timestamp())";
-    $result=mysqli_query($conn, $sql);
-    if($result){
-      $showAlert=true;
-    }
+
+  $existSql="SELECT * FROM `user` WHERE username='$username'";
+  $result=mysqli_query($conn, $existSql);
+  $numExistRows=mysqli_num_rows($result);
+  
+  if($numExistRows > 0){
+    $showError="Username already exist.";
   }
   else{
-    $showError=true;
+    if($password==$c_password){
+      $sql="INSERT INTO `user` (`username`, `password`, `dt`) VALUES ('$username', '$password', current_timestamp())";
+      $result=mysqli_query($conn, $sql);
+      if($result){
+        $showAlert=true;
+      }
+    }
+    else{
+      $showError="Password do not match.";
+    }
   }
 }
 
@@ -48,7 +57,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
     }
     if($showError){
       echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong>Error!</strong> Your password do not matched.
+      <strong>Error!</strong> '.$showError.'
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
       </button>
