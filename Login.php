@@ -7,18 +7,27 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
     $username=$_POST['username'];
     $password=$_POST['password'];
 
-    $sql="SELECT * FROM `user` where username='$username' AND password='$password'";
+    $sql="SELECT * FROM `user` where username='$username'";
     $result=mysqli_query($conn, $sql);
     $num=mysqli_num_rows($result);
-    if($num>=1){
-        $login=true;
-        session_start();
-        $_SESSION['loggedin']=true;
-        $_SESSION['username']=$username;
-        header("location: Welcome.php");
+    if($num==1){
+        // while($row=mysqli_fetch_assoc($result)){
+        //   This is used when we store same user for more then 1 time 
+        // }
+        $row=mysqli_fetch_assoc($result);
+        if(password_verify($password, $row['password'])){
+          $login=true;
+          session_start();
+          $_SESSION['loggedin']=true;
+          $_SESSION['username']=$username;
+          header("location: Welcome.php");
+        }
+        else{
+          $showError=true;
+        }
     }
     else{
-        $showError=true;
+      $showError=true;
     }
 }
 
